@@ -10,7 +10,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 
 	"github.com/reddit/baseplate.go/clientpool"
-	"github.com/reddit/baseplate.go/internal/prometheusbpint"
+	//lint:ignore SA1019 This library is internal only, not actually deprecated
+	"github.com/reddit/baseplate.go/internalv2compat"
 	"github.com/reddit/baseplate.go/prometheusbp"
 )
 
@@ -30,7 +31,7 @@ var (
 		successLabel,
 	}
 
-	serverLatencyDistribution = promauto.With(prometheusbpint.GlobalRegistry).NewHistogramVec(prometheus.HistogramOpts{
+	serverLatencyDistribution = promauto.With(internalv2compat.GlobalRegistry).NewHistogramVec(prometheus.HistogramOpts{
 		Name:    "thrift_server_latency_seconds",
 		Help:    "RPC latencies",
 		Buckets: prometheusbp.DefaultBuckets,
@@ -44,7 +45,7 @@ var (
 		baseplateStatusCodeLabel,
 	}
 
-	serverTotalRequests = promauto.With(prometheusbpint.GlobalRegistry).NewCounterVec(prometheus.CounterOpts{
+	serverTotalRequests = promauto.With(internalv2compat.GlobalRegistry).NewCounterVec(prometheus.CounterOpts{
 		Name: "thrift_server_requests_total",
 		Help: "Total RPC request count",
 	}, serverTotalRequestLabels)
@@ -53,7 +54,7 @@ var (
 		methodLabel,
 	}
 
-	serverActiveRequests = promauto.With(prometheusbpint.GlobalRegistry).NewGaugeVec(prometheus.GaugeOpts{
+	serverActiveRequests = promauto.With(internalv2compat.GlobalRegistry).NewGaugeVec(prometheus.GaugeOpts{
 		Name: "thrift_server_active_requests",
 		Help: "The number of in-flight requests being handled by the service",
 	}, serverActiveRequestsLabels)
@@ -67,7 +68,7 @@ var (
 		clientNameLabel,
 	}
 
-	clientLatencyDistribution = promauto.With(prometheusbpint.GlobalRegistry).NewHistogramVec(prometheus.HistogramOpts{
+	clientLatencyDistribution = promauto.With(internalv2compat.GlobalRegistry).NewHistogramVec(prometheus.HistogramOpts{
 		Name:    "thrift_client_latency_seconds",
 		Help:    "RPC latencies",
 		Buckets: prometheusbp.DefaultBuckets,
@@ -83,7 +84,7 @@ var (
 		clientNameLabel,
 	}
 
-	clientTotalRequests = promauto.With(prometheusbpint.GlobalRegistry).NewCounterVec(prometheus.CounterOpts{
+	clientTotalRequests = promauto.With(internalv2compat.GlobalRegistry).NewCounterVec(prometheus.CounterOpts{
 		Name: "thrift_client_requests_total",
 		Help: "Total RPC request count",
 	}, clientTotalRequestLabels)
@@ -94,7 +95,7 @@ var (
 		clientNameLabel,
 	}
 
-	clientActiveRequests = promauto.With(prometheusbpint.GlobalRegistry).NewGaugeVec(prometheus.GaugeOpts{
+	clientActiveRequests = promauto.With(internalv2compat.GlobalRegistry).NewGaugeVec(prometheus.GaugeOpts{
 		Name: "thrift_client_active_requests",
 		Help: "The number of in-flight requests",
 	}, clientActiveRequestsLabels)
@@ -111,7 +112,7 @@ const (
 )
 
 var (
-	serverConnectionsGauge = promauto.With(prometheusbpint.GlobalRegistry).NewGauge(prometheus.GaugeOpts{
+	serverConnectionsGauge = promauto.With(internalv2compat.GlobalRegistry).NewGauge(prometheus.GaugeOpts{
 		Namespace: promNamespace,
 		Subsystem: subsystemServer,
 		Name:      "connections",
@@ -126,7 +127,7 @@ var (
 		successLabel,
 	}
 
-	ttlClientReplaceCounter = promauto.With(prometheusbpint.GlobalRegistry).NewCounterVec(prometheus.CounterOpts{
+	ttlClientReplaceCounter = promauto.With(internalv2compat.GlobalRegistry).NewCounterVec(prometheus.CounterOpts{
 		Namespace: promNamespace,
 		Subsystem: subsystemTTLClient,
 		Name:      "connection_housekeeping_total",
@@ -150,7 +151,7 @@ var (
 	// (up to ~500 KiB).
 	payloadSizeBuckets = prometheus.ExponentialBuckets(8, 2, 20)
 
-	payloadSizeRequestBytes = promauto.With(prometheusbpint.GlobalRegistry).NewHistogramVec(prometheus.HistogramOpts{
+	payloadSizeRequestBytes = promauto.With(internalv2compat.GlobalRegistry).NewHistogramVec(prometheus.HistogramOpts{
 		Namespace: promNamespace,
 		Subsystem: subsystemServer,
 		Name:      "request_payload_size_bytes",
@@ -158,7 +159,7 @@ var (
 		Buckets:   payloadSizeBuckets,
 	}, payloadSizeLabels)
 
-	payloadSizeResponseBytes = promauto.With(prometheusbpint.GlobalRegistry).NewHistogramVec(prometheus.HistogramOpts{
+	payloadSizeResponseBytes = promauto.With(internalv2compat.GlobalRegistry).NewHistogramVec(prometheus.HistogramOpts{
 		Namespace: promNamespace,
 		Subsystem: subsystemServer,
 		Name:      "response_payload_size_bytes",
@@ -172,7 +173,7 @@ var (
 		methodLabel,
 	}
 
-	panicRecoverCounter = promauto.With(prometheusbpint.GlobalRegistry).NewCounterVec(prometheus.CounterOpts{
+	panicRecoverCounter = promauto.With(internalv2compat.GlobalRegistry).NewCounterVec(prometheus.CounterOpts{
 		Namespace: promNamespace,
 		Subsystem: subsystemServer,
 		Name:      "panic_recover_total",
@@ -186,21 +187,21 @@ var (
 		clientNameLabel,
 	}
 
-	clientPoolExhaustedCounter = promauto.With(prometheusbpint.GlobalRegistry).NewCounterVec(prometheus.CounterOpts{
+	clientPoolExhaustedCounter = promauto.With(internalv2compat.GlobalRegistry).NewCounterVec(prometheus.CounterOpts{
 		Namespace: promNamespace,
 		Subsystem: subsystemClientPool,
 		Name:      "exhausted_total",
 		Help:      "The number of pool exhaustion for a thrift client pool",
 	}, clientPoolLabels)
 
-	clientPoolClosedConnectionsCounter = promauto.With(prometheusbpint.GlobalRegistry).NewCounterVec(prometheus.CounterOpts{
+	clientPoolClosedConnectionsCounter = promauto.With(internalv2compat.GlobalRegistry).NewCounterVec(prometheus.CounterOpts{
 		Namespace: promNamespace,
 		Subsystem: subsystemClientPool,
 		Name:      "closed_connections_total",
 		Help:      "The number of times we closed the client after used it from the pool",
 	}, clientPoolLabels)
 
-	clientPoolReleaseErrorCounter = promauto.With(prometheusbpint.GlobalRegistry).NewCounterVec(prometheus.CounterOpts{
+	clientPoolReleaseErrorCounter = promauto.With(internalv2compat.GlobalRegistry).NewCounterVec(prometheus.CounterOpts{
 		Namespace: promNamespace,
 		Subsystem: subsystemClientPool,
 		Name:      "release_error_total",
@@ -232,7 +233,7 @@ var (
 		clientLabel,
 	}
 
-	deadlineBudgetHisto = promauto.With(prometheusbpint.GlobalRegistry).NewHistogramVec(prometheus.HistogramOpts{
+	deadlineBudgetHisto = promauto.With(internalv2compat.GlobalRegistry).NewHistogramVec(prometheus.HistogramOpts{
 		Namespace: promNamespace,
 		Subsystem: subsystemServer,
 		Name:      "extracted_deadline_budget_seconds",

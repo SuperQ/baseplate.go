@@ -1,4 +1,4 @@
-package prometheusbpint
+package prometheusbp
 
 import (
 	"sync"
