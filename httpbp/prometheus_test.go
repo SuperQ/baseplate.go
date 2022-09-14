@@ -13,6 +13,7 @@ import (
 
 	"github.com/reddit/baseplate.go"
 	"github.com/reddit/baseplate.go/ecinterface"
+	"github.com/reddit/baseplate.go/httpbp/metrics"
 	"github.com/reddit/baseplate.go/internal/prometheusbp/spectest"
 	"github.com/reddit/baseplate.go/prometheusbp/promtest"
 )
@@ -114,60 +115,60 @@ func TestPrometheusClientServerMetrics(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			serverLatency.Reset()
-			serverTotalRequests.Reset()
-			serverActiveRequests.Reset()
-			clientLatencyDistribution.Reset()
-			clientTotalRequests.Reset()
-			clientActiveRequests.Reset()
+			metrics.ServerLatency.Reset()
+			metrics.ServerTotalRequests.Reset()
+			metrics.ServerActiveRequests.Reset()
+			metrics.ClientLatencyDistribution.Reset()
+			metrics.ClientTotalRequests.Reset()
+			metrics.ClientActiveRequests.Reset()
 
 			serverSizeLabels := prometheus.Labels{
-				methodLabel:   tt.method,
-				successLabel:  tt.success,
-				endpointLabel: tt.endpoint,
+				metrics.MethodLabel:   tt.method,
+				metrics.SuccessLabel:  tt.success,
+				metrics.EndpointLabel: tt.endpoint,
 			}
 
 			serverTotalRequestLabels := prometheus.Labels{
-				methodLabel:   tt.method,
-				successLabel:  tt.success,
-				codeLabel:     tt.code,
-				endpointLabel: tt.endpoint,
+				metrics.MethodLabel:   tt.method,
+				metrics.SuccessLabel:  tt.success,
+				metrics.CodeLabel:     tt.code,
+				metrics.EndpointLabel: tt.endpoint,
 			}
 
 			serverActiveRequestLabels := prometheus.Labels{
-				methodLabel:   tt.method,
-				endpointLabel: tt.endpoint,
+				metrics.MethodLabel:   tt.method,
+				metrics.EndpointLabel: tt.endpoint,
 			}
 
 			clientLatencyLabels := prometheus.Labels{
-				methodLabel:     tt.method,
-				successLabel:    tt.success,
-				serverSlugLabel: serverSlug,
-				clientNameLabel: serverSlug,
+				metrics.MethodLabel:     tt.method,
+				metrics.SuccessLabel:    tt.success,
+				metrics.ServerSlugLabel: serverSlug,
+				metrics.ClientNameLabel: serverSlug,
 			}
 
 			clientTotalRequestLabels := prometheus.Labels{
-				methodLabel:     tt.method,
-				successLabel:    tt.success,
-				codeLabel:       tt.code,
-				serverSlugLabel: serverSlug,
-				clientNameLabel: serverSlug,
+				metrics.MethodLabel:     tt.method,
+				metrics.SuccessLabel:    tt.success,
+				metrics.CodeLabel:       tt.code,
+				metrics.ServerSlugLabel: serverSlug,
+				metrics.ClientNameLabel: serverSlug,
 			}
 
 			clientActiveRequestLabels := prometheus.Labels{
-				methodLabel:     tt.method,
-				serverSlugLabel: serverSlug,
-				clientNameLabel: serverSlug,
+				metrics.MethodLabel:     tt.method,
+				metrics.ServerSlugLabel: serverSlug,
+				metrics.ClientNameLabel: serverSlug,
 			}
 
-			defer promtest.NewPrometheusMetricTest(t, "server latency", serverLatency, serverSizeLabels).CheckSampleCountDelta(1)
-			defer promtest.NewPrometheusMetricTest(t, "server total requests", serverTotalRequests, serverTotalRequestLabels).CheckDelta(1)
-			defer promtest.NewPrometheusMetricTest(t, "server active requests", serverActiveRequests, serverActiveRequestLabels).CheckDelta(0)
-			defer promtest.NewPrometheusMetricTest(t, "server request size", serverRequestSize, serverSizeLabels).CheckDelta(float64(tt.reqSize))
-			defer promtest.NewPrometheusMetricTest(t, "server response size", serverResponseSize, serverSizeLabels).CheckDelta(float64(tt.respSize))
-			defer promtest.NewPrometheusMetricTest(t, "client latency", clientLatencyDistribution, clientLatencyLabels).CheckSampleCountDelta(1)
-			defer promtest.NewPrometheusMetricTest(t, "client total requests", clientTotalRequests, clientTotalRequestLabels).CheckDelta(1)
-			defer promtest.NewPrometheusMetricTest(t, "client active requests", clientActiveRequests, clientActiveRequestLabels).CheckDelta(0)
+			defer promtest.NewPrometheusMetricTest(t, "server latency", metrics.ServerLatency, serverSizeLabels).CheckSampleCountDelta(1)
+			defer promtest.NewPrometheusMetricTest(t, "server total requests", metrics.ServerTotalRequests, serverTotalRequestLabels).CheckDelta(1)
+			defer promtest.NewPrometheusMetricTest(t, "server active requests", metrics.ServerActiveRequests, serverActiveRequestLabels).CheckDelta(0)
+			defer promtest.NewPrometheusMetricTest(t, "server request size", metrics.ServerRequestSize, serverSizeLabels).CheckDelta(float64(tt.reqSize))
+			defer promtest.NewPrometheusMetricTest(t, "server response size", metrics.ServerResponseSize, serverSizeLabels).CheckDelta(float64(tt.respSize))
+			defer promtest.NewPrometheusMetricTest(t, "client latency", metrics.ClientLatencyDistribution, clientLatencyLabels).CheckSampleCountDelta(1)
+			defer promtest.NewPrometheusMetricTest(t, "client total requests", metrics.ClientTotalRequests, clientTotalRequestLabels).CheckDelta(1)
+			defer promtest.NewPrometheusMetricTest(t, "client active requests", metrics.ClientActiveRequests, clientActiveRequestLabels).CheckDelta(0)
 			defer spectest.ValidateSpec(t, "http", "server")
 			defer spectest.ValidateSpec(t, "http", "client")
 

@@ -14,6 +14,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/reddit/baseplate.go/breakerbp"
+	"github.com/reddit/baseplate.go/httpbp/metrics"
 	"github.com/reddit/baseplate.go/retrybp"
 	"github.com/reddit/baseplate.go/tracing"
 	"github.com/reddit/baseplate.go/transport"
@@ -286,11 +287,11 @@ func PrometheusClientMetrics(serverSlug string) ClientMiddleware {
 			start := time.Now()
 			method := req.Method
 			activeRequestLabels := prometheus.Labels{
-				methodLabel:     method,
-				serverSlugLabel: serverSlug,
-				clientNameLabel: serverSlug,
+				metrics.MethodLabel:     method,
+				metrics.ServerSlugLabel: serverSlug,
+				metrics.ClientNameLabel: serverSlug,
 			}
-			clientActiveRequests.With(activeRequestLabels).Inc()
+			metrics.ClientActiveRequests.With(activeRequestLabels).Inc()
 
 			defer func() {
 				// the Retries middleware might return nil resp with an error,
@@ -307,24 +308,24 @@ func PrometheusClientMetrics(serverSlug string) ClientMiddleware {
 				success := isRequestSuccessful(code, err)
 
 				latencyLabels := prometheus.Labels{
-					methodLabel:     method,
-					successLabel:    success,
-					serverSlugLabel: serverSlug,
-					clientNameLabel: serverSlug,
+					metrics.MethodLabel:     method,
+					metrics.SuccessLabel:    success,
+					metrics.ServerSlugLabel: serverSlug,
+					metrics.ClientNameLabel: serverSlug,
 				}
 
-				clientLatencyDistribution.With(latencyLabels).Observe(time.Since(start).Seconds())
+				metrics.ClientLatencyDistribution.With(latencyLabels).Observe(time.Since(start).Seconds())
 
 				totalRequestLabels := prometheus.Labels{
-					methodLabel:     method,
-					successLabel:    success,
-					codeLabel:       strconv.Itoa(code),
-					serverSlugLabel: serverSlug,
-					clientNameLabel: serverSlug,
+					metrics.MethodLabel:     method,
+					metrics.SuccessLabel:    success,
+					metrics.CodeLabel:       strconv.Itoa(code),
+					metrics.ServerSlugLabel: serverSlug,
+					metrics.ClientNameLabel: serverSlug,
 				}
 
-				clientTotalRequests.With(totalRequestLabels).Inc()
-				clientActiveRequests.With(activeRequestLabels).Dec()
+				metrics.ClientTotalRequests.With(totalRequestLabels).Inc()
+				metrics.ClientActiveRequests.With(activeRequestLabels).Dec()
 			}()
 
 			return next.RoundTrip(req)

@@ -1,4 +1,4 @@
-package httpbp
+package metrics
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
@@ -8,69 +8,69 @@ import (
 )
 
 const (
-	methodLabel     = "http_method"
-	successLabel    = "http_success"
-	codeLabel       = "http_response_code"
-	serverSlugLabel = "http_slug" // Deprecated, will be removed after 2022-09-01
-	clientNameLabel = "http_client_name"
-	endpointLabel   = "http_endpoint"
+	MethodLabel     = "http_method"
+	SuccessLabel    = "http_success"
+	CodeLabel       = "http_response_code"
+	ServerSlugLabel = "http_slug" // Deprecated, will be removed after 2022-09-01
+	ClientNameLabel = "http_client_name"
+	EndpointLabel   = "http_endpoint"
 )
 
 var (
 	serverLabels = []string{
-		methodLabel,
-		successLabel,
-		endpointLabel,
+		MethodLabel,
+		SuccessLabel,
+		EndpointLabel,
 	}
 
-	serverLatency = promauto.NewHistogramVec(prometheus.HistogramOpts{
+	ServerLatency = promauto.NewHistogramVec(prometheus.HistogramOpts{
 		Name:    "http_server_latency_seconds",
 		Help:    "HTTP server request latencies",
 		Buckets: prometheusbp.DefaultBuckets,
 	}, serverLabels)
 
-	serverRequestSize = promauto.NewHistogramVec(prometheus.HistogramOpts{
+	ServerRequestSize = promauto.NewHistogramVec(prometheus.HistogramOpts{
 		Name:    "http_server_request_size_bytes",
 		Help:    "Request size",
 		Buckets: prometheusbp.DefaultBuckets,
 	}, serverLabels)
 
-	serverResponseSize = promauto.NewHistogramVec(prometheus.HistogramOpts{
+	ServerResponseSize = promauto.NewHistogramVec(prometheus.HistogramOpts{
 		Name:    "http_server_response_size_bytes",
 		Help:    "Response size",
 		Buckets: prometheusbp.DefaultBuckets,
 	}, serverLabels)
 
-	serverTimeToWriteHeader = promauto.NewHistogramVec(prometheus.HistogramOpts{
+	ServerTimeToWriteHeader = promauto.NewHistogramVec(prometheus.HistogramOpts{
 		Name:    "http_server_time_to_write_header_seconds",
 		Help:    "Request size",
 		Buckets: prometheusbp.DefaultBuckets,
 	}, serverLabels)
 
-	serverTimeToFirstByte = promauto.NewHistogramVec(prometheus.HistogramOpts{
+	ServerTimeToFirstByte = promauto.NewHistogramVec(prometheus.HistogramOpts{
 		Name:    "http_server_time_to_first_byte_seconds",
 		Help:    "Response size",
 		Buckets: prometheusbp.DefaultBuckets,
 	}, serverLabels)
 
 	serverTotalRequestLabels = []string{
-		methodLabel,
-		successLabel,
-		codeLabel,
-		endpointLabel,
+		MethodLabel,
+		SuccessLabel,
+		CodeLabel,
+		EndpointLabel,
 	}
 
-	serverTotalRequests = promauto.NewCounterVec(prometheus.CounterOpts{
+	ServerTotalRequests = promauto.NewCounterVec(prometheus.CounterOpts{
 		Name: "http_server_requests_total",
 		Help: "Total request count",
 	}, serverTotalRequestLabels)
 
 	serverActiveRequestsLabels = []string{
-		methodLabel,
-		endpointLabel,
+		MethodLabel,
+		EndpointLabel,
 	}
 
-	serverActiveRequests = promauto.NewGaugeVec(prometheus.GaugeOpts{
+	ServerActiveRequests = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "http_server_active_requests",
 		Help: "The number of in-flight requests being handled by the service",
 	}, serverActiveRequestsLabels)
@@ -78,38 +78,38 @@ var (
 
 var (
 	clientLatencyLabels = []string{
-		methodLabel,
-		successLabel,
-		serverSlugLabel,
-		clientNameLabel,
+		MethodLabel,
+		SuccessLabel,
+		ServerSlugLabel,
+		ClientNameLabel,
 	}
 
-	clientLatencyDistribution = promauto.NewHistogramVec(prometheus.HistogramOpts{
+	ClientLatencyDistribution = promauto.NewHistogramVec(prometheus.HistogramOpts{
 		Name:    "http_client_latency_seconds",
 		Help:    "HTTP client request latencies",
 		Buckets: prometheusbp.DefaultBuckets,
 	}, clientLatencyLabels)
 
 	clientTotalRequestLabels = []string{
-		methodLabel,
-		successLabel,
-		codeLabel,
-		serverSlugLabel,
-		clientNameLabel,
+		MethodLabel,
+		SuccessLabel,
+		CodeLabel,
+		ServerSlugLabel,
+		ClientNameLabel,
 	}
 
-	clientTotalRequests = promauto.NewCounterVec(prometheus.CounterOpts{
+	ClientTotalRequests = promauto.NewCounterVec(prometheus.CounterOpts{
 		Name: "http_client_requests_total",
 		Help: "Total request count",
 	}, clientTotalRequestLabels)
 
 	clientActiveRequestsLabels = []string{
-		methodLabel,
-		serverSlugLabel,
-		clientNameLabel,
+		MethodLabel,
+		ServerSlugLabel,
+		ClientNameLabel,
 	}
 
-	clientActiveRequests = promauto.NewGaugeVec(prometheus.GaugeOpts{
+	ClientActiveRequests = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "http_client_active_requests",
 		Help: "The number of in-flight requests",
 	}, clientActiveRequestsLabels)
@@ -123,10 +123,10 @@ const (
 
 var (
 	panicRecoverLabels = []string{
-		methodLabel,
+		MethodLabel,
 	}
 
-	panicRecoverCounter = promauto.NewCounterVec(prometheus.CounterOpts{
+	PanicRecoverCounter = promauto.NewCounterVec(prometheus.CounterOpts{
 		Namespace: promNamespace,
 		Subsystem: subsystemServer,
 		Name:      "panic_recover_total",
@@ -138,5 +138,5 @@ var (
 //  1. http server time to write header in seconds
 //  2. http server time to write header in seconds
 func PerformanceMonitoringMiddleware() (timeToWriteHeader, timeToFirstByte *prometheus.HistogramVec) {
-	return serverTimeToWriteHeader, serverTimeToFirstByte
+	return ServerTimeToWriteHeader, ServerTimeToFirstByte
 }

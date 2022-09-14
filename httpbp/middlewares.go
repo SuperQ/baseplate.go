@@ -10,11 +10,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-kit/kit/metrics"
+	gokitmetrics "github.com/go-kit/kit/metrics"
 	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/reddit/baseplate.go/ecinterface"
 	"github.com/reddit/baseplate.go/errorsbp"
+	"github.com/reddit/baseplate.go/httpbp/metrics"
 	"github.com/reddit/baseplate.go/log"
 	"github.com/reddit/baseplate.go/metricsbp"
 	"github.com/reddit/baseplate.go/prometheusbp"
@@ -287,8 +288,8 @@ func SupportedMethods(method string, additional ...string) Middleware {
 // bubble up into other middlewares. Since it is always added to the middleware
 // chain is a specific position, it is not exported.
 func recoverPanic(name string, next HandlerFunc) HandlerFunc {
-	counter := panicRecoverCounter.With(prometheus.Labels{
-		methodLabel: name,
+	counter := metrics.PanicRecoverCounter.With(prometheus.Labels{
+		metrics.MethodLabel: name,
 	})
 	return func(ctx context.Context, w http.ResponseWriter, r *http.Request) (err error) {
 		defer func() {
@@ -387,7 +388,7 @@ func isSuccessStatusCode(code int) bool {
 //
 // this was added purely to make it easier to test the middleware.
 type counterGenerator interface {
-	Counter(name string) metrics.Counter
+	Counter(name string) gokitmetrics.Counter
 }
 
 func recordStatusCode(counters counterGenerator) Middleware {
@@ -448,10 +449,10 @@ func PrometheusServerMetrics(_ string) Middleware {
 			start := time.Now()
 			method := r.Method
 			activeRequestLabels := prometheus.Labels{
-				methodLabel:   method,
-				endpointLabel: name,
+				metrics.MethodLabel:   method,
+				metrics.EndpointLabel: name,
 			}
-			serverActiveRequests.With(activeRequestLabels).Inc()
+			metrics.ServerActiveRequests.With(activeRequestLabels).Inc()
 
 			wrapped := &responseRecorder{ResponseWriter: w}
 			defer func() {
@@ -459,22 +460,22 @@ func PrometheusServerMetrics(_ string) Middleware {
 				success := isRequestSuccessful(code, err)
 
 				labels := prometheus.Labels{
-					methodLabel:   method,
-					successLabel:  success,
-					endpointLabel: name,
+					metrics.MethodLabel:   method,
+					metrics.SuccessLabel:  success,
+					metrics.EndpointLabel: name,
 				}
-				serverLatency.With(labels).Observe(time.Since(start).Seconds())
-				serverRequestSize.With(labels).Observe(float64(r.ContentLength))
-				serverResponseSize.With(labels).Observe(float64(wrapped.bytesWritten))
+				metrics.ServerLatency.With(labels).Observe(time.Since(start).Seconds())
+				metrics.ServerRequestSize.With(labels).Observe(float64(r.ContentLength))
+				metrics.ServerResponseSize.With(labels).Observe(float64(wrapped.bytesWritten))
 
 				totalRequestLabels := prometheus.Labels{
-					methodLabel:   method,
-					successLabel:  success,
-					codeLabel:     strconv.Itoa(code),
-					endpointLabel: name,
+					metrics.MethodLabel:   method,
+					metrics.SuccessLabel:  success,
+					metrics.CodeLabel:     strconv.Itoa(code),
+					metrics.EndpointLabel: name,
 				}
-				serverTotalRequests.With(totalRequestLabels).Inc()
-				serverActiveRequests.With(activeRequestLabels).Dec()
+				metrics.ServerTotalRequests.With(totalRequestLabels).Inc()
+				metrics.ServerActiveRequests.With(activeRequestLabels).Dec()
 			}()
 
 			return next(ctx, wrapped, r)
