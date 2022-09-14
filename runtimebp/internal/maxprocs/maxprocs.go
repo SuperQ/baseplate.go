@@ -16,9 +16,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	ubermaxprocs "go.uber.org/automaxprocs/maxprocs"
-
-	//lint:ignore SA1019 This library is internal only, not actually deprecated
-	"github.com/reddit/baseplate.go/internalv2compat"
 )
 
 type floatEnv struct {
@@ -47,25 +44,25 @@ const (
 )
 
 var (
-	mEnvGOMAXPROCS = promauto.With(internalv2compat.GlobalRegistry).NewGaugeVec(prometheus.GaugeOpts{
+	mEnvGOMAXPROCS = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "baseplate_go_env_gomaxprocs",
 		Help: "Value of the GOMAXPROCS environment variable at startup. 0 if not a number",
 	}, []string{"status"})
-	mEnvCPURequest = promauto.With(internalv2compat.GlobalRegistry).NewGaugeVec(prometheus.GaugeOpts{
+	mEnvCPURequest = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "baseplate_go_env_baseplate_cpu_request",
 		Help: "Value of the BASEPLATE_CPU_REQUEST environment variable at startup. 0 if not a number",
 	}, []string{"status"})
-	mEnvCPURequestScale = promauto.With(internalv2compat.GlobalRegistry).NewGaugeVec(prometheus.GaugeOpts{
+	mEnvCPURequestScale = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "baseplate_go_env_baseplate_cpu_request_scale",
 		Help: "Value of the BASEPLATE_CPU_REQUEST_SCALE environment variable at startup. 0 if not a number",
 	}, []string{"status"})
 
-	initialGOMAXPROCS = promauto.With(internalv2compat.GlobalRegistry).NewGaugeVec(prometheus.GaugeOpts{
+	initialGOMAXPROCS = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "baseplate_go_initial_gomaxprocs",
 		Help: "Resolved value of GOMAXPROCS at startup",
 	}, []string{"set_by"})
 
-	_ = promauto.With(internalv2compat.GlobalRegistry).NewGaugeFunc(prometheus.GaugeOpts{
+	_ = promauto.NewGaugeFunc(prometheus.GaugeOpts{
 		Name: "baseplate_go_current_gomaxprocs",
 		Help: "Current value of GOMAXPROCS",
 	}, currentGOMAXPROCS)

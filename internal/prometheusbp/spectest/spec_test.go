@@ -9,8 +9,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 
 	"github.com/reddit/baseplate.go/errorsbp"
-	//lint:ignore SA1019 This library is internal only, not actually deprecated
-	"github.com/reddit/baseplate.go/internalv2compat"
 )
 
 func TestMissingMetrics(t *testing.T) {
@@ -148,10 +146,8 @@ func TestValidateLabels(t *testing.T) {
 			metricName:     "foo_bar_total",
 			prefix:         "fo",
 			clientOrServer: server,
-			gotLabels: map[string]struct{}{
-				"test": {},
-			},
-			wantErrs: []error{errDiffLabels},
+			gotLabels:      map[string]struct{}{"test": {}},
+			wantErrs:       []error{errDiffLabels},
 		},
 		{
 			name:           "latency success",
@@ -171,10 +167,8 @@ func TestValidateLabels(t *testing.T) {
 			metricName:     "thrift_latency_seconds",
 			prefix:         thriftPrefix,
 			clientOrServer: server,
-			gotLabels: map[string]struct{}{
-				"thrift_method": {},
-			},
-			wantErrs: []error{errDiffLabels},
+			gotLabels:      map[string]struct{}{"thrift_method": {}},
+			wantErrs:       []error{errDiffLabels},
 		},
 		{
 			name:           "request total success",
@@ -187,7 +181,6 @@ func TestValidateLabels(t *testing.T) {
 				"thrift_baseplate_status":      {},
 				"thrift_baseplate_status_code": {},
 				"thrift_exception_type":        {},
-				"baseplate_go":                 {},
 			},
 			wantErrs: []error{},
 		},
@@ -196,37 +189,29 @@ func TestValidateLabels(t *testing.T) {
 			metricName:     "thrift_requests_total",
 			prefix:         thriftPrefix,
 			clientOrServer: server,
-			gotLabels: map[string]struct{}{
-				"thrift_method": {},
-			},
-			wantErrs: []error{errDiffLabels},
+			gotLabels:      map[string]struct{}{"thrift_method": {}},
+			wantErrs:       []error{errDiffLabels},
 		},
 		{
 			name:           "active_requests success",
 			metricName:     "thrift_active_requests",
 			prefix:         thriftPrefix,
 			clientOrServer: server,
-			gotLabels: map[string]struct{}{
-				"thrift_method": {},
-			},
-			wantErrs: []error{},
+			gotLabels:      map[string]struct{}{"thrift_method": {}},
+			wantErrs:       []error{},
 		},
 		{
 			name:           "active_requests wrong labels",
 			metricName:     "thrift_active_requests",
 			prefix:         thriftPrefix,
 			clientOrServer: server,
-			gotLabels: map[string]struct{}{
-				"thrift_method": {},
-				"foo":           {},
-			},
-			wantErrs: []error{errDiffLabels},
+			gotLabels:      map[string]struct{}{"thrift_method": {}, "foo": {}},
+			wantErrs:       []error{errDiffLabels},
 		},
 	}
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.gotLabels["baseplate_go"] = struct{}{} // set const label
 			gotErr := validateLabels(tt.metricName, tt.prefix, tt.clientOrServer, tt.gotLabels)
 			checkErrors(t, gotErr, tt.wantErrs)
 		})
@@ -246,10 +231,7 @@ func TestBuildLabelsThrift(t *testing.T) {
 			metricName:     "thrift_latency_seconds",
 			prefix:         thriftPrefix,
 			clientOrServer: server,
-			want: map[string]struct{}{
-				"thrift_method":  {},
-				"thrift_success": {},
-			},
+			want:           map[string]struct{}{"thrift_method": {}, "thrift_success": {}},
 		},
 		{
 			name:           "requests_total labels",
@@ -282,7 +264,6 @@ func TestBuildLabelsThrift(t *testing.T) {
 	}
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.want["baseplate_go"] = struct{}{} // set const label
 			if got, want := buildLabels(tt.metricName, tt.prefix, tt.clientOrServer), tt.want; !reflect.DeepEqual(got, want) {
 				t.Fatalf("got %v, want %v", got, want)
 			}
@@ -373,7 +354,6 @@ func TestBuildLabelsHTTP(t *testing.T) {
 	}
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.want["baseplate_go"] = struct{}{} // set const label
 			if got, want := buildLabels(tt.metricName, tt.prefix, tt.clientOrServer), tt.want; !reflect.DeepEqual(got, want) {
 				t.Fatalf("got %v, want %v", got, want)
 			}
@@ -421,10 +401,7 @@ func TestBuildLabelsGPRC(t *testing.T) {
 			metricName:     "grpc_active_requests",
 			prefix:         grpcPrefix,
 			clientOrServer: server,
-			want: map[string]struct{}{
-				"grpc_method":  {},
-				"grpc_service": {},
-			},
+			want:           map[string]struct{}{"grpc_method": {}, "grpc_service": {}},
 		},
 		{
 			name:           "none",
@@ -435,7 +412,6 @@ func TestBuildLabelsGPRC(t *testing.T) {
 	}
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.want["baseplate_go"] = struct{}{} // set const label
 			if got, want := buildLabels(tt.metricName, tt.prefix, tt.clientOrServer), tt.want; !reflect.DeepEqual(got, want) {
 				t.Fatalf("got %v, want %v", got, want)
 			}
@@ -451,7 +427,7 @@ func TestValidateSpec(t *testing.T) {
 			"thrift_baseplate_status",
 		}
 
-		testMetric = promauto.With(internalv2compat.GlobalRegistry).NewCounterVec(prometheus.CounterOpts{
+		testMetric = promauto.NewCounterVec(prometheus.CounterOpts{
 			Name: "thrift_client_latency_seconds",
 			Help: "Test help message",
 		}, testLabels)

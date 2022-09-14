@@ -11,8 +11,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 
-	//lint:ignore SA1019 This library is internal only, not actually deprecated
-	"github.com/reddit/baseplate.go/internalv2compat"
 	"github.com/reddit/baseplate.go/log"
 	"github.com/reddit/baseplate.go/metricsbp"
 )
@@ -28,13 +26,13 @@ var (
 		pathLabel,
 	}
 
-	sizeGauge = promauto.With(internalv2compat.GlobalRegistry).NewGaugeVec(prometheus.GaugeOpts{
+	sizeGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Namespace: promNamespace,
 		Name:      "file_size_bytes",
 		Help:      "The size of the file opened by limitopen.Open",
 	}, sizeLabels)
 
-	softLimitCounter = promauto.With(internalv2compat.GlobalRegistry).NewCounterVec(prometheus.CounterOpts{
+	softLimitCounter = promauto.NewCounterVec(prometheus.CounterOpts{
 		Namespace: promNamespace,
 		Name:      "softlimit_violation_total",
 		Help:      "The total number of violations of softlimit",

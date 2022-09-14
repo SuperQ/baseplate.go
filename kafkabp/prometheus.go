@@ -3,8 +3,6 @@ package kafkabp
 import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
-	//lint:ignore SA1019 This library is internal only, not actually deprecated
-	"github.com/reddit/baseplate.go/internalv2compat"
 )
 
 const (
@@ -22,7 +20,7 @@ var (
 		successLabel,
 	}
 
-	rebalanceCounter = promauto.With(internalv2compat.GlobalRegistry).NewCounterVec(prometheus.CounterOpts{
+	rebalanceCounter = promauto.NewCounterVec(prometheus.CounterOpts{
 		Namespace: promNamespace,
 		Subsystem: subsystemConsumer,
 		Name:      "rebalance_total",
@@ -35,7 +33,7 @@ var (
 		topicLabel,
 	}
 
-	consumerTimer = promauto.With(internalv2compat.GlobalRegistry).NewHistogramVec(prometheus.HistogramOpts{
+	consumerTimer = promauto.NewHistogramVec(prometheus.HistogramOpts{
 		Namespace: promNamespace,
 		Subsystem: subsystemConsumer,
 		Name:      "duration_seconds",
@@ -43,7 +41,7 @@ var (
 		Buckets:   prometheus.ExponentialBucketsRange(1e-4, 10, 10), // 100us - 10s
 	}, timerLabels)
 
-	groupConsumerTimer = promauto.With(internalv2compat.GlobalRegistry).NewHistogramVec(prometheus.HistogramOpts{
+	groupConsumerTimer = promauto.NewHistogramVec(prometheus.HistogramOpts{
 		Namespace: promNamespace,
 		Subsystem: subsystemGroupConsumer,
 		Name:      "duration_seconds",
@@ -53,13 +51,13 @@ var (
 )
 
 var (
-	awsRackFailure = promauto.With(internalv2compat.GlobalRegistry).NewCounter(prometheus.CounterOpts{
+	awsRackFailure = promauto.NewCounter(prometheus.CounterOpts{
 		Namespace: promNamespace,
 		Name:      "aws_rack_id_failure_total",
 		Help:      "Total failures of getting rack id from AWS endpoint",
 	})
 
-	httpRackFailure = promauto.With(internalv2compat.GlobalRegistry).NewCounter(prometheus.CounterOpts{
+	httpRackFailure = promauto.NewCounter(prometheus.CounterOpts{
 		Namespace: promNamespace,
 		Name:      "http_rack_id_failure_total",
 		Help:      "Total failures of getting rack id from http endpoint",
